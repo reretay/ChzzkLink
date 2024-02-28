@@ -97,7 +97,7 @@ class BackgroundThread(QThread):
             self.recording_process.terminate()
             #self.recording_process.wait()  # 녹화가 완전히 종료될 때까지 대기
             self.recording_process = None
-            print("Stop recording")
+            print(\n"Stop recording")
 
 
 # 화면을 띄우는데 사용되는 Class 선언
