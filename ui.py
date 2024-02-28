@@ -52,6 +52,7 @@ class BackgroundThread(QThread):
             open_date = content.get('openDate', 'unknown_date')
             # 파일 이름 설정
             file_name = self.generate_file_name(channel_name, open_date, title)
+            file_name = self.check_and_rename_file(file_name)
             file_path = f"recordings/{file_name}"
             record_command = f'streamlink --loglevel none https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"'
             self.recording_process = subprocess.Popen(record_command, shell=True)
@@ -69,6 +70,17 @@ class BackgroundThread(QThread):
     # 특수문자 제거 함수
     def remove_special_characters(self, text):
         return re.sub(r'[^\w\s]', '', text)
+
+    # 파일 이름 중복 확인 및 변경 함수
+    def check_and_rename_file(self, file_name):
+        file_path_chk = f"recordings/{file_name}"
+        base, ext = os.path.splitext(file_name)
+        index = 1
+        while os.path.exists(file_path_chk):
+            new_file_name = f"{base}_{index}{ext}"
+            file_path_chk = f"recordings/{new_file_name}"
+            index += 1
+        return new_file_name
 
     # 녹화 종료 함수
     def stop_recording(self):
@@ -102,6 +114,7 @@ class WindowClass(QMainWindow, form_class):
     def stop_recording(self):
         if hasattr(self, 'background_thread') and self.background_thread:
             self.background_thread.stop_recording()
+        QApplication.quit()
 
     # 백그라운드 스레드가 작업을 완료했을 때 호출되는 함수
     def background_thread_finished(self):
