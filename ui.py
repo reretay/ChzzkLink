@@ -86,6 +86,7 @@ class BackgroundThread(QThread):
     def stop_recording(self):
         if self.recording_process:
             self.recording_process.terminate()
+            self.recording_process.wait()  # 녹화가 완전히 종료될 때까지 대기
             self.recording_process = None
             print("Stop recording")
 
@@ -99,22 +100,28 @@ class WindowClass(QMainWindow, form_class):
         self.pushButton_start.clicked.connect(self.start_recording)
         self.pushButton_stop.clicked.connect(self.stop_recording)
 
+        self.background_thread = None
+
     # 녹화 시작 함수
     def start_recording(self):
         channel_id = self.lineEdit_channel_id.text().strip()
         if channel_id:
-            # 백그라운드 스레드 생성 및 실행
-            self.background_thread = BackgroundThread(channel_id)
-            self.background_thread.finished.connect(self.background_thread_finished)
-            self.background_thread.start()
+            if not self.background_thread or not self.background_thread.isRunning():
+                # 백그라운드 스레드 생성 및 실행
+                self.background_thread = BackgroundThread(channel_id)
+                self.background_thread.finished.connect(self.background_thread_finished)
+                self.background_thread.start()
+            else:
+                print("Recording is already in progress.")
         else:
             print("Please enter a channel ID.")
 
     # 녹화 종료 함수
     def stop_recording(self):
-        if hasattr(self, 'background_thread') and self.background_thread:
+        if self.background_thread and self.background_thread.isRunning():
             self.background_thread.stop_recording()
-        QApplication.quit()
+        else:
+            print("No recording in progress.")
 
     # 백그라운드 스레드가 작업을 완료했을 때 호출되는 함수
     def background_thread_finished(self):
