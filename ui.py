@@ -93,14 +93,11 @@ class BackgroundThread(QThread):
 
     # 녹화 종료 함수
     def stop_recording(self):
-        if self.background_thread and self.background_thread.isRunning():
-            self.background_thread.stop_recording()
-            while self.background_thread.isRunning():  # 백그라운드 스레드가 종료될 때까지 대기
-                QCoreApplication.processEvents()  # 이벤트 루프를 계속 실행하여 UI 응답 유지
-            QApplication.quit()  # 프로그램 종료
-        else:
-            print("No recording in progress.")
-
+        if self.recording_process:
+            self.recording_process.terminate()
+            #self.recording_process.wait()  # 녹화가 완전히 종료될 때까지 대기
+            self.recording_process = None
+            print("Stop recording")
 
 
 # 화면을 띄우는데 사용되는 Class 선언
@@ -133,7 +130,9 @@ class WindowClass(QMainWindow, form_class):
     def stop_recording(self):
         if self.background_thread and self.background_thread.isRunning():
             self.background_thread.stop_recording()
-            self.background_thread.wait()  # 백그라운드 스레드가 완전히 종료될 때까지 대기
+            #while self.background_thread.isRunning():  # 백그라운드 스레드가 종료될 때까지 대기
+            #    QApplication.processEvents()  # 이벤트 루프를 계속 실행하여 UI 응답 유지
+            #self.background_thread.wait()  # 백그라운드 스레드가 완전히 종료될 때까지 대기
             QApplication.quit()  # 프로그램 종료
         else:
             print("No recording in progress.")
