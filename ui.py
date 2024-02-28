@@ -7,6 +7,7 @@ import subprocess
 import time
 import os
 import re
+import signal
 
 # UI 파일 연결
 form_class = uic.loadUiType("untitled.ui")[0]
@@ -20,18 +21,24 @@ class BackgroundThread(QThread):
         super().__init__()
         self.channel_id = channel_id
         self.recording_process = None
+        self.is_recording_started = False  # 녹화 시작 여부를 나타내는 플래그
+        self.is_interrupted = False  # 스레드 중단 요청을 나타내는 플래그
 
     def run(self):
         naver_api_url = f'https://api.chzzk.naver.com/service/v2/channels/{self.channel_id}/live-detail'
-        while True:
+        while not self.is_interrupted:  # 스레드가 중단 요청을 받을 때까지 루프 실행
             naver_status = self.check_naver_status(naver_api_url)
             if naver_status == 'OPEN':
-                if not self.recording_process:
+                if not self.recording_process and not self.is_recording_started:
                     self.start_recording(naver_api_url)
             else:
                 if self.recording_process:
                     self.stop_recording()
             time.sleep(10)  # 10초마다 상태 확인 (조절 가능)
+
+    # 스레드를 중단시키는 메서드
+    def stop(self):
+        self.is_interrupted = True
 
     # Naver API에서 상태 확인 함수
     def check_naver_status(self, url):
@@ -55,7 +62,8 @@ class BackgroundThread(QThread):
             file_name = self.check_and_rename_file(file_name)
             file_path = f"recordings/{file_name}"
             record_command = f'streamlink --loglevel none https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"'
-            self.recording_process = subprocess.Popen(record_command, shell=True)
+            self.recording_process = subprocess.Popen(record_command)
+            self.is_recording_started = True  # 녹화 시작 플래그 설정
             print("Start recording:", file_path)
         else:
             print(f"Failed to get API data: {response.status_code}")
@@ -76,6 +84,7 @@ class BackgroundThread(QThread):
         file_path_chk = f"recordings/{file_name}"
         base, ext = os.path.splitext(file_name)
         index = 1
+        new_file_name = file_name
         while os.path.exists(file_path_chk):
             new_file_name = f"{base}_{index}{ext}"
             file_path_chk = f"recordings/{new_file_name}"
@@ -86,9 +95,18 @@ class BackgroundThread(QThread):
     def stop_recording(self):
         if self.recording_process:
             self.recording_process.terminate()
-            self.recording_process.wait()  # 녹화가 완전히 종료될 때까지 대기
-            self.recording_process = None
+            self.recording_process.wait()  # 프로세스가 완전히 종료될 때까지 대기
             print("Stop recording")
+            self.finished.emit()  # 작업 완료 시그널 발생
+        else:
+            print("No recording in progress.")
+
+
+
+
+
+
+
 
 # 화면을 띄우는데 사용되는 Class 선언
 class WindowClass(QMainWindow, form_class):
@@ -120,8 +138,12 @@ class WindowClass(QMainWindow, form_class):
     def stop_recording(self):
         if self.background_thread and self.background_thread.isRunning():
             self.background_thread.stop_recording()
+            self.background_thread.wait()  # 백그라운드 스레드가 완전히 종료될 때까지 대기
+            QApplication.quit()  # 프로그램 종료
         else:
             print("No recording in progress.")
+
+
 
     # 백그라운드 스레드가 작업을 완료했을 때 호출되는 함수
     def background_thread_finished(self):
