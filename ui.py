@@ -65,7 +65,7 @@ class BackgroundThread(QThread):
             file_path = f"recordings/{file_name}"
             record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"'
             # streamlink 명령 실행
-            self.recording_process = subprocess.Popen(record_command, shell=True)
+            self.recording_process = subprocess.Popen(record_command)
             if self.recording_process.poll() is None:
                 # 명령이 성공적으로 실행된 경우
                 print("Start recording:", file_path)
