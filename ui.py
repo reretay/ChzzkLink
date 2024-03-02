@@ -31,9 +31,11 @@ class BackgroundThread(QThread):
             if naver_status == 'OPEN':
                 if not self.recording_process and not self.is_recording_started:
                     self.start_recording(naver_api_url)
+                print("Status:OPEN")
             else:
                 if self.recording_process:
                     self.stop_recording()
+                print("Status:CLOSED, Retry in 10 seconds")
             time.sleep(10)  # 10초마다 상태 확인 (조절 가능)
 
     # 스레드를 중단시키는 메서드
@@ -62,11 +64,19 @@ class BackgroundThread(QThread):
             file_name = self.check_and_rename_file(file_name)
             file_path = f"recordings/{file_name}"
             record_command = f'streamlink --loglevel none https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"'
-            self.recording_process = subprocess.Popen(record_command)
-            self.is_recording_started = True  # 녹화 시작 플래그 설정
-            print("Start recording:", file_path)
+            # streamlink 명령 실행
+            result = subprocess.run(record_command)
+            if result.returncode == 0:
+                # 명령이 성공적으로 실행된 경우
+                print("Start recording:", file_path)
+            else:
+                # 명령 실행이 실패한 경우 사용자에게 경고 메시지 표시
+                QMessageBox.warning(None, "Recording Error", "Failed to start recording.")
+                print("Failed to start recording.")
+            return result.returncode == 0
         else:
             print(f"Failed to get API data: {response.status_code}")
+            return False
 
     # 파일 이름 생성 함수
     def generate_file_name(self, channel_name, open_date, title):
@@ -97,7 +107,7 @@ class BackgroundThread(QThread):
             self.recording_process.terminate()
             #self.recording_process.wait()  # 녹화가 완전히 종료될 때까지 대기
             self.recording_process = None
-            print(\n"Stop recording")
+            print("\nStop recording")
 
 
 # 화면을 띄우는데 사용되는 Class 선언
