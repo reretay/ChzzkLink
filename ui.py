@@ -63,20 +63,16 @@ class BackgroundThread(QThread):
             file_name = self.generate_file_name(channel_name, open_date, title)
             file_name = self.check_and_rename_file(file_name)
             file_path = f"recordings/{file_name}"
-            record_command = f'streamlink --loglevel none https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"'
+            record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"'
             # streamlink 명령 실행
-            result = subprocess.run(record_command)
-            if result.returncode == 0:
+            self.recording_process = subprocess.Popen(record_command, shell=True)
+            if self.recording_process.poll() is None:
                 # 명령이 성공적으로 실행된 경우
                 print("Start recording:", file_path)
             else:
                 # 명령 실행이 실패한 경우 사용자에게 경고 메시지 표시
                 QMessageBox.warning(None, "Recording Error", "Failed to start recording.")
                 print("Failed to start recording.")
-            return result.returncode == 0
-        else:
-            print(f"Failed to get API data: {response.status_code}")
-            return False
 
     # 파일 이름 생성 함수
     def generate_file_name(self, channel_name, open_date, title):
@@ -140,10 +136,11 @@ class WindowClass(QMainWindow, form_class):
     def stop_recording(self):
         if self.background_thread and self.background_thread.isRunning():
             self.background_thread.stop_recording()
+            self.background_thread.stop()
             #while self.background_thread.isRunning():  # 백그라운드 스레드가 종료될 때까지 대기
             #    QApplication.processEvents()  # 이벤트 루프를 계속 실행하여 UI 응답 유지
             #self.background_thread.wait()  # 백그라운드 스레드가 완전히 종료될 때까지 대기
-            QApplication.quit()  # 프로그램 종료
+            #QApplication.quit()  # 프로그램 종료
         else:
             print("No recording in progress.")
 
