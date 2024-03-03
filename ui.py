@@ -10,7 +10,7 @@ import re
 import signal
 
 # UI 파일 연결
-form_class = uic.loadUiType("untitled.ui")[0]
+form_class = uic.loadUiType("ChzzkLinkUI.ui")[0]
 
 # 백그라운드에서 주기적으로 작업을 처리하는 클래스
 class BackgroundThread(QThread):
@@ -36,7 +36,7 @@ class BackgroundThread(QThread):
                 if self.recording_process:
                     self.stop_recording()
                 print("Status:CLOSED, Retry in 10 seconds")
-            time.sleep(10)  # 10초마다 상태 확인 (조절 가능)
+            time.sleep(10)  # 10초마다 상태 확인
 
     # 스레드를 중단시키는 메서드
     def stop(self):
@@ -63,7 +63,7 @@ class BackgroundThread(QThread):
             file_name = self.generate_file_name(channel_name, open_date, title)
             file_name = self.check_and_rename_file(file_name)
             file_path = f"recordings/{file_name}"
-            record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"'
+            record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --plugin-dirs streamlink-6.6.2-1-py312-x86_64 https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"'
             # streamlink 명령 실행
             self.recording_process = subprocess.Popen(record_command)
             if self.recording_process.poll() is None:
@@ -115,6 +115,7 @@ class WindowClass(QMainWindow, form_class):
         # QPushButton에 대한 이벤트 핸들러 연결
         self.pushButton_start.clicked.connect(self.start_recording)
         self.pushButton_stop.clicked.connect(self.stop_recording)
+        self.pushButton_end.clicked.connect(self.end_program)
 
         self.background_thread = None
 
@@ -144,6 +145,11 @@ class WindowClass(QMainWindow, form_class):
         else:
             print("No recording in progress.")
 
+    #프로그램 종료 함수
+    def end_program(self):
+        self.background_thread.stop_recording()
+        self.background_thread.stop()
+        QApplication.quit()
 
 
     # 백그라운드 스레드가 작업을 완료했을 때 호출되는 함수
