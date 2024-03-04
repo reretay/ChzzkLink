@@ -17,9 +17,6 @@ class BackgroundThread(QThread):
     # 작업 완료 시그널
     finished = pyqtSignal()
 
-    # 진행률 변화 시그널
-    progress_changed = pyqtSignal(int, int)  # 현재 값, 최대 값
-
     def __init__(self, channel_id):
         super().__init__()
         self.channel_id = channel_id
@@ -72,8 +69,6 @@ class BackgroundThread(QThread):
             if self.recording_process.poll() is None:
                 # 명령이 성공적으로 실행된 경우
                 print("Start recording:", file_path)
-                # 진행률 시그널을 발생시켜 progressBar의 범위를 설정
-                self.progress_changed.emit(0, 0)  # 최소 값, 최대 값
             else:
                 # 명령 실행이 실패한 경우 사용자에게 경고 메시지 표시
                 QMessageBox.warning(None, "Recording Error", "Failed to start recording.")
@@ -107,11 +102,7 @@ class BackgroundThread(QThread):
         if self.recording_process:
             self.recording_process.terminate()
             #self.recording_process.wait()  # 녹화가 완전히 종료될 때까지 대기
-            # progressBar의 범위를 설정
-            self.progress_changed.emit(0, 100)  # 최소 값, 최대 값
             self.recording_process = None
-            # progressBar의 범위를 설정
-            self.progress_changed.emit(0, 100)  # 최소 값, 최대 값
             print("\nStop recording")
 
 
