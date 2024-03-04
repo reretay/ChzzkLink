@@ -93,32 +93,13 @@
      <string>Contact: root@bums.kr</string>
     </property>
    </widget>
-   <widget class="QProgressBar" name="progressBar">
+   <widget class="QTextEdit" name="textEdit">
     <property name="geometry">
      <rect>
       <x>20</x>
       <y>90</y>
       <width>351</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="minimum">
-     <number>0</number>
-    </property>
-    <property name="maximum">
-     <number>100</number>
-    </property>
-    <property name="textVisible">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="textEdit">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>120</y>
-      <width>351</width>
-      <height>121</height>
+      <height>151</height>
      </rect>
     </property>
    </widget>
