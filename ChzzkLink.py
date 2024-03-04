@@ -16,6 +16,8 @@ form_class = uic.loadUiType("ChzzkLinkUI.ui")[0]
 class BackgroundThread(QThread):
     # 작업 완료 시그널
     finished = pyqtSignal()
+    # 상태 업데이트 시그널
+    status_updated = pyqtSignal(str)
 
     def __init__(self, channel_id):
         super().__init__()
@@ -32,6 +34,7 @@ class BackgroundThread(QThread):
                 if not self.recording_process and not self.is_recording_started:
                     self.start_recording(naver_api_url)
                 print("Status:OPEN")
+                self.status_updated.emit("녹화중...")  # 상태 업데이트 시그널 발생
             else:
                 if self.recording_process:
                     self.stop_recording()
@@ -103,6 +106,7 @@ class BackgroundThread(QThread):
             self.recording_process.terminate()
             #self.recording_process.wait()  # 녹화가 완전히 종료될 때까지 대기
             self.recording_process = None
+            self.status_updated.emit("녹화중이 아닙니다.")  # 상태 업데이트 시그널 발생
             print("\nStop recording")
 
 
@@ -127,6 +131,7 @@ class WindowClass(QMainWindow, form_class):
                 # 백그라운드 스레드 생성 및 실행
                 self.background_thread = BackgroundThread(channel_id)
                 self.background_thread.finished.connect(self.background_thread_finished)
+                self.background_thread.status_updated.connect(self.update_status_label)  # QLabel 텍스트 업데이트 연결
                 self.background_thread.start()
             else:
                 print("Recording is already in progress.")
@@ -151,6 +156,9 @@ class WindowClass(QMainWindow, form_class):
         self.background_thread.stop()
         QApplication.quit()
 
+    # QLabel 텍스트 업데이트 메서드
+    def update_status_label(self, status):
+        self.label_status.setText(status)
 
     # 백그라운드 스레드가 작업을 완료했을 때 호출되는 함수
     def background_thread_finished(self):
