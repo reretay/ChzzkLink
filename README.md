@@ -8,3 +8,7 @@ https://github.com/reretay/Chzzk_Tool_Auto_Record
 
 # Alpha Release
 https://github.com/reretay/ChzzkLink/releases/tag/Alpha
+
+# To Do List
+다시보기 기능 추가 <br>
+영상 길이 문제 수정 <br>
