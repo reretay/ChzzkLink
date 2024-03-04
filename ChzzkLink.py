@@ -67,6 +67,11 @@ class BackgroundThread(QThread):
             file_name = self.check_and_rename_file(file_name)
             file_path = f"recordings/{file_name}"
             record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --plugin-dirs streamlink-6.6.2-1-py312-x86_64 https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"'
+            # 녹화 시작 전에 필요한 정보를 메인 창으로 전달
+            self.status_updated.emit(f"채널 ID: {self.channel_id}\n")
+            self.status_updated.emit(f"채널명: {channel_name}\n")
+            self.status_updated.emit(f"방송 제목: {title}\n")
+            self.status_updated.emit(f"방송 시작 시간: {open_date}\n")
             # streamlink 명령 실행
             self.recording_process = subprocess.Popen(record_command)
             if self.recording_process.poll() is None:
@@ -131,7 +136,7 @@ class WindowClass(QMainWindow, form_class):
                 # 백그라운드 스레드 생성 및 실행
                 self.background_thread = BackgroundThread(channel_id)
                 self.background_thread.finished.connect(self.background_thread_finished)
-                self.background_thread.status_updated.connect(self.update_status_label)  # QLabel 텍스트 업데이트 연결
+                self.background_thread.status_updated.connect(self.update_status_textbrowser)  # QTextBrowser 텍스트 업데이트 연결
                 self.background_thread.start()
             else:
                 print("Recording is already in progress.")
@@ -156,9 +161,9 @@ class WindowClass(QMainWindow, form_class):
         self.background_thread.stop()
         QApplication.quit()
 
-    # QLabel 텍스트 업데이트 메서드
-    def update_status_label(self, status):
-        self.label_status.setText(status)
+    # QTextBrowser 텍스트 업데이트 메서드
+    def update_status_textbrowser(self, status):
+        self.textBrowser.append(status)  # textBrowser에 정보 추가
 
     # 백그라운드 스레드가 작업을 완료했을 때 호출되는 함수
     def background_thread_finished(self):
