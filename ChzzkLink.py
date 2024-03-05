@@ -19,6 +19,12 @@ class BackgroundThread(QThread):
     # 상태 업데이트 시그널
     status_updated = pyqtSignal(str)
 
+    # API 헤더
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+    }
+    useragent = f'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+
     def __init__(self, channel_id):
         super().__init__()
         self.channel_id = channel_id
@@ -47,7 +53,7 @@ class BackgroundThread(QThread):
 
     # Naver API에서 상태 확인 함수
     def check_naver_status(self, url):
-        response = requests.get(url)
+        response = requests.get(url, headers=self.headers)
         if response.status_code == 200:
             return response.json().get('content', {}).get('status')
         else:
@@ -56,7 +62,7 @@ class BackgroundThread(QThread):
 
     # 녹화 시작 함수
     def start_recording(self, api_url):
-        response = requests.get(api_url)
+        response = requests.get(api_url, headers=self.headers)
         if response.status_code == 200:
             content = response.json().get('content', {})
             title = content.get('liveTitle', 'untitled')
@@ -66,7 +72,7 @@ class BackgroundThread(QThread):
             file_name = self.generate_file_name(channel_name, open_date, title)
             file_name = self.check_and_rename_file(file_name)
             file_path = f"recordings/{file_name}"
-            record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --plugin-dirs streamlink-6.6.2-1-py312-x86_64 https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"'
+            record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --plugin-dirs streamlink-6.6.2-1-py312-x86_64 --http-header "User-Agent={self.useragent}" https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"'
             # 녹화 시작 전에 필요한 정보를 메인 창으로 전달
             self.status_updated.emit(f"채널 ID: {self.channel_id}\n")
             self.status_updated.emit(f"채널명: {channel_name}\n")
