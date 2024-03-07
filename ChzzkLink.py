@@ -136,7 +136,14 @@ class WindowClass(QMainWindow, form_class):
 
     # 녹화 시작 함수
     def start_recording(self):
-        channel_id = self.lineEdit_channel_id.text().strip()
+        channel_url = self.lineEdit_channel_id.text().strip() # QLineEdit 에서 읽어오기
+        if 'live' in channel_url:
+            match = re.search(r'/live/(\w+)', channel_url) # URL에서 채널 ID 추출
+            channel_id = match.group(1)
+            print(channel_id)
+        else:
+            print("It is not proper url")
+        
         if channel_id:
             if not self.background_thread or not self.background_thread.isRunning():
                 # 백그라운드 스레드 생성 및 실행
@@ -147,7 +154,7 @@ class WindowClass(QMainWindow, form_class):
             else:
                 print("Recording is already in progress.")
         else:
-            print("Please enter a channel ID.")
+            print("Please enter a URL.")
 
     # 녹화 종료 함수
     def stop_recording(self):
