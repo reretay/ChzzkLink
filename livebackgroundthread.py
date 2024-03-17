@@ -8,7 +8,7 @@ import re
 import signal
 
 # 백그라운드에서 주기적으로 작업을 처리하는 클래스
-class BackgroundThread(QThread):
+class Live_BackgroundThread(QThread):
     # 작업 완료 시그널
     finished = pyqtSignal()
     # 상태 업데이트 시그널

@@ -8,8 +8,8 @@ import time
 import os
 import re
 import signal
-from backgroundthread import BackgroundThread
-from backgroundthread2 import BackgroundThread2
+from livebackgroundthread import Live_BackgroundThread
+from videobackgroundthread import Video_BackgroundThread
 
 # UI 파일 연결
 form_class = uic.loadUiType("ChzzkLinkUI.ui")[0]
@@ -47,7 +47,7 @@ class WindowClass(QMainWindow, form_class):
         if channel_id and download_type=='live':
             if not self.background_thread or not self.background_thread.isRunning():
                 # 백그라운드 스레드 생성 및 실행
-                self.background_thread = BackgroundThread(channel_id)
+                self.background_thread = Live_BackgroundThread(channel_id)
                 self.background_thread.finished.connect(self.background_thread_finished)
                 self.background_thread.status_updated.connect(self.update_status_textbrowser)  # QTextBrowser 텍스트 업데이트 연결
                 self.background_thread.start()
@@ -56,7 +56,7 @@ class WindowClass(QMainWindow, form_class):
         elif video_num and download_type=='video':
             if not self.background_thread or not self.background_thread.isRunning():
                 # 백그라운드 스레드 생성 및 실행
-                self.background_thread = BackgroundThread2(video_num)
+                self.background_thread = Video_BackgroundThread(video_num)
                 self.background_thread.finished.connect(self.background_thread_finished)
                 self.background_thread.status_updated.connect(self.update_status_textbrowser)  # QTextBrowser 텍스트 업데이트 연결
                 self.background_thread.start()

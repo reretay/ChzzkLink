@@ -8,7 +8,7 @@ import re
 import signal
 
 # 백그라운드에서 주기적으로 작업을 처리하는 클래스
-class BackgroundThread2(QThread):
+class Video_BackgroundThread(QThread):
     # 작업 완료 시그널
     finished = pyqtSignal()
     # 상태 업데이트 시그널
@@ -29,11 +29,31 @@ class BackgroundThread2(QThread):
 
     def run(self):
         naver_api_url = f'https://api.chzzk.naver.com/service/v2/videos/{self.video_num}'
-        self.start_recording(naver_api_url)
+        while not self.is_interrupted:  # 스레드가 중단 요청을 받을 때까지 루프 실행
+            naver_status = self.check_naver_status(naver_api_url)
+            if naver_status == 'OPEN':
+                if not self.recording_process and not self.is_recording_started:
+                    self.start_recording(naver_api_url)
+                print("Status:OPEN")
+                self.status_updated.emit("다운로드중...")  # 상태 업데이트 시그널 발생
+            else:
+                if self.recording_process:
+                    self.stop_recording()
+                print("Error, Retry in 10 seconds. Please Check your URL")
+            time.sleep(10)  # 10초마다 상태 확인
 
     # 스레드를 중단시키는 메서드
     def stop(self):
         self.is_interrupted = True
+
+    # Naver API에서 상태 확인 함수
+    def check_naver_status(self, url):
+        response = requests.get(url, headers=self.headers)
+        if response.status_code == 200: # API 200 응답만 확인
+            return 'OPEN'
+        else:
+            print(f'Error Status code: {response.status_code}\nResponse: {response.text}')
+            return None
 
     # 녹화 시작 함수
     def start_recording(self, api_url):
