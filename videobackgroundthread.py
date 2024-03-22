@@ -90,9 +90,9 @@ class Video_BackgroundThread(QThread):
         title = self.remove_special_characters(title)
         return f"{channel_name}_{publish_date}_{title}.ts"
 
-    # 특수문자 제거 함수
+    # 특수문자 제거 및 이스케이프 시퀀스 제거 함수
     def remove_special_characters(self, text):
-        return re.sub(r'[^\w\s]', '', text)
+        return re.sub(r'[^\w\s]', '', text).replace('\n', '')
 
     # 파일 이름 중복 확인 및 변경 함수
     def check_and_rename_file(self, file_name):
