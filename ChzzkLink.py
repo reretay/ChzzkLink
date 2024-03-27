@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, Qt
+from PyQt5.QtGui import QPixmap
 from PyQt5 import uic
 import requests
 import subprocess
@@ -49,7 +50,7 @@ class WindowClass(QMainWindow, form_class):
                 # 백그라운드 스레드 생성 및 실행
                 self.background_thread = Live_BackgroundThread(channel_id)
                 self.background_thread.finished.connect(self.background_thread_finished)
-                self.background_thread.status_updated.connect(self.update_status_textbrowser)  # QTextBrowser 텍스트 업데이트 연결
+                self.background_thread.status_updated.connect(self.update_status)  # QTextBrowser 텍스트 업데이트 연결
                 self.background_thread.start()
             else:
                 print("Recording is already in progress.")
@@ -58,7 +59,7 @@ class WindowClass(QMainWindow, form_class):
                 # 백그라운드 스레드 생성 및 실행
                 self.background_thread = Video_BackgroundThread(video_num)
                 self.background_thread.finished.connect(self.background_thread_finished)
-                self.background_thread.status_updated.connect(self.update_status_textbrowser)  # QTextBrowser 텍스트 업데이트 연결
+                self.background_thread.status_updated.connect(self.update_status)  # QTextBrowser 텍스트 업데이트 연결
                 self.background_thread.start()
             else:
                 print("Downloading is already in progress.")
@@ -80,9 +81,21 @@ class WindowClass(QMainWindow, form_class):
         self.background_thread.stop()
         QApplication.quit()
 
-    # QTextBrowser 텍스트 업데이트 메서드
-    def update_status_textbrowser(self, status):
-        self.textBrowser.append(status)  # textBrowser에 정보 추가
+    # 백그라운드 쓰레드 업데이트 메서드
+    def update_status(self, status):
+        if status.startswith("http"): # 썸네일을 받아오는 조건문
+            status = status.replace('{type}', '480')
+            response = requests.get(status)
+            with open('temp.png', 'wb') as f:
+                    f.write(response.content)
+            pixmap = QPixmap('temp.png')
+            self.label_4.setPixmap(pixmap.scaled(200, 200, Qt.KeepAspectRatio))  # 이미지 크기 조정
+            self.label_4.setAlignment(Qt.AlignCenter)  # 이미지 중앙 정렬
+            self.label_4.setScaledContents(True)  # 이미지 크기를 라벨 크기에 맞게 조정
+            self.label_4.show()
+            self.label_4.update()
+        else:
+            self.textBrowser.append(status)  # textBrowser에 정보 추가
 
     # 백그라운드 스레드가 작업을 완료했을 때 호출되는 함수
     def background_thread_finished(self):

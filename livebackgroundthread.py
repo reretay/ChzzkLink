@@ -63,6 +63,8 @@ class Live_BackgroundThread(QThread):
             title = content.get('liveTitle', 'untitled')
             channel_name = content.get('channel', {}).get('channelName', 'unknown_channel')
             open_date = content.get('openDate', 'unknown_date')
+            image_url = content.get('liveImageUrl') # 썸네일 이미지 URL을 시그널로 전달
+            self.status_updated.emit(image_url)
             # 파일 이름 설정
             file_name = self.generate_file_name(channel_name, open_date, title)
             file_name = self.check_and_rename_file(file_name)
