@@ -63,6 +63,8 @@ class Video_BackgroundThread(QThread):
             title = content.get('videoTitle', 'untitled')
             channel_name = content.get('channel', {}).get('channelName', 'unknown_channel')
             publish_date = content.get('publishDate', 'unknown_date')
+            image_url = content.get('thumbnailImageUrl') # 썸네일 이미지 URL을 시그널로 전달
+            self.status_updated.emit(image_url)
             # 파일 이름 설정
             file_name = self.generate_file_name(channel_name, publish_date, title)
             file_name = self.check_and_rename_file(file_name)
