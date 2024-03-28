@@ -11,20 +11,30 @@ import re
 import signal
 from livebackgroundthread import Live_BackgroundThread
 from videobackgroundthread import Video_BackgroundThread
+from nid import NIDWindowClass
 
 # UI 파일 연결
-form_class = uic.loadUiType("ChzzkLinkUI.ui")[0]
+MainWindow = uic.loadUiType("ChzzkLinkUI.ui")[0]
 
 # 화면을 띄우는데 사용되는 Class 선언
-class WindowClass(QMainWindow, form_class):
+class WindowClass(QMainWindow, MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+
+        #NID
+        self.OAUTH = 'false'
+        self.NID_SES = 'null'
+        self.NID_AUT = 'null'
+
+        # ChzzkLink 내에서 인스턴스를 생성하고 NIDWindowClass에 전달
+        self.nid_window = NIDWindowClass(self)
 
         # QPushButton에 대한 이벤트 핸들러 연결
         self.pushButton_start.clicked.connect(self.start_recording)
         self.pushButton_stop.clicked.connect(self.stop_recording)
         self.pushButton_end.clicked.connect(self.end_program)
+        self.pushButton_nid.clicked.connect(self.show_nid_window)
 
         self.background_thread = None
 
@@ -48,7 +58,7 @@ class WindowClass(QMainWindow, form_class):
         if channel_id and download_type=='live':
             if not self.background_thread or not self.background_thread.isRunning():
                 # 백그라운드 스레드 생성 및 실행
-                self.background_thread = Live_BackgroundThread(channel_id)
+                self.background_thread = Live_BackgroundThread(channel_id, self.OAUTH, self.NID_SES, self.NID_AUT)
                 self.background_thread.finished.connect(self.background_thread_finished)
                 self.background_thread.status_updated.connect(self.update_status)  # QTextBrowser 텍스트 업데이트 연결
                 self.background_thread.start()
@@ -77,9 +87,11 @@ class WindowClass(QMainWindow, form_class):
 
     #프로그램 종료 함수
     def end_program(self):
-        self.background_thread.stop_recording()
-        self.background_thread.stop()
-        QApplication.quit()
+        if self.background_thread and self.background_thread.isRunning():
+            self.background_thread.stop_recording()
+            self.background_thread.stop()
+        else:
+            QApplication.quit()
 
     # 백그라운드 쓰레드 업데이트 메서드
     def update_status(self, status):
@@ -100,6 +112,16 @@ class WindowClass(QMainWindow, form_class):
     # 백그라운드 스레드가 작업을 완료했을 때 호출되는 함수
     def background_thread_finished(self):
         print("Background thread finished")
+
+    # nid 창 표시 함수 추가
+    def show_nid_window(self):
+        self.nid_window = NIDWindowClass()
+        self.nid_window.show()
+
+    def handle_nid_data(self, oauth, ses, aut):
+        self.OAUTH = oauth
+        self.NID_SES = ses
+        self.NID_AUT = aut
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
