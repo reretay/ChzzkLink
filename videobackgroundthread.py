@@ -73,9 +73,9 @@ class Video_BackgroundThread(QThread):
             file_name = self.check_and_rename_file(file_name)
             file_path = f"recordings/{file_name}"
             if self.OAUTH == "false":
-                record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --ffmpeg-copyts --plugin-dirs streamlink-6.6.2-1-py312-x86_64 --http-header "User-Agent={self.useragent}" https://chzzk.naver.com/video/{self.video_num} best --output "{file_path}"'
+                record_command = (f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --ffmpeg-copyts --plugin-dirs streamlink-6.6.2-1-py312-x86_64 --http-header "User-Agent={self.useragent}" https://chzzk.naver.com/video/{self.video_num} best --output "{file_path}"')
             else:
-                record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --ffmpeg-copyts --plugin-dirs streamlink-6.6.2-1-py312-x86_64 --http-header "User-Agent={self.useragent}" --chzzk-cookies "NID_AUT={self.NID_AUT}; NID_SES={self.NID_SES};" https://chzzk.naver.com/video/{self.video_num} best --output "{file_path}"'
+                record_command = (f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --ffmpeg-copyts --plugin-dirs VODPlugin --http-header "User-Agent={self.useragent}" https://chzzk.naver.com/video/{self.video_num} best --http-cookie "NID_AUT={self.NID_AUT}; NID_SES={self.NID_SES};" --output "{file_path}"')
             # 녹화 시작 전에 필요한 정보를 메인 창으로 전달
             self.status_updated.emit(f"NID 사용 여부: {self.OAUTH}\n")
             self.status_updated.emit(f"영상 번호: {self.video_num}\n")

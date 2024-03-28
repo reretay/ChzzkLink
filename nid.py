@@ -26,7 +26,7 @@ class NIDWindowClass(QWidget, NIDWindow):
             NID_AUT = self.lineEdit_NID_AUT.text().strip()
             OAUTH = "true"
             # 시그널 발생
-            self.data_saved.emit(NID_SES, NID_AUT, OAUTH)
+            self.data_saved.emit(OAUTH, NID_SES, NID_AUT)
             QMessageBox.about(self,'Alert','Saved!')
         else:
             NID_SES = 'null'

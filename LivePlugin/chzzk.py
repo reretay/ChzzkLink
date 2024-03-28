@@ -1,12 +1,12 @@
 # encoding: utf-8
 import re
-import lzstring
+#import lzstring
 import uuid
 import requests
 from streamlink.plugin import Plugin, pluginmatcher, pluginargument
 from streamlink.stream import HLSStream 
 import json
-import rsa 
+#import rsa 
 import logging
 
 log = logging.getLogger(__name__)
