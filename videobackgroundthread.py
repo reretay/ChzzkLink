@@ -20,9 +20,12 @@ class Video_BackgroundThread(QThread):
     }
     useragent = f'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
 
-    def __init__(self, video_num):
+    def __init__(self, video_num, OAUTH, NID_SES, NID_AUT):
         super().__init__()
         self.video_num = video_num
+        self.OAUTH = OAUTH # NID 값 가져오기
+        self.NID_SES = NID_SES
+        self.NID_AUT = NID_AUT
         self.recording_process = None
         self.is_recording_started = False  # 녹화 시작 여부를 나타내는 플래그
         self.is_interrupted = False  # 스레드 중단 요청을 나타내는 플래그
@@ -69,8 +72,12 @@ class Video_BackgroundThread(QThread):
             file_name = self.generate_file_name(channel_name, publish_date, title)
             file_name = self.check_and_rename_file(file_name)
             file_path = f"recordings/{file_name}"
-            record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --plugin-dirs streamlink-6.6.2-1-py312-x86_64 --http-header "User-Agent={self.useragent}" https://chzzk.naver.com/video/{self.video_num} best --output "{file_path}"'
+            if self.OAUTH == "false":
+                record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --plugin-dirs streamlink-6.6.2-1-py312-x86_64 --http-header "User-Agent={self.useragent}" https://chzzk.naver.com/video/{self.video_num} best --output "{file_path}"'
+            else:
+                record_command = f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --plugin-dirs streamlink-6.6.2-1-py312-x86_64 --http-header "User-Agent={self.useragent}" --http-cookie "NID_AUT={self.NID_AUT}; NID_SES={self.NID_SES};" https://chzzk.naver.com/video/{self.video_num} best --output "{file_path}"'
             # 녹화 시작 전에 필요한 정보를 메인 창으로 전달
+            self.status_updated.emit(f"NID 사용 여부: {self.OAUTH}\n")
             self.status_updated.emit(f"영상 번호: {self.video_num}\n")
             self.status_updated.emit(f"채널명: {channel_name}\n")
             self.status_updated.emit(f"영상 제목: {title}\n")

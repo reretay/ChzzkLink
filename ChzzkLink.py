@@ -64,7 +64,7 @@ class WindowClass(QMainWindow, MainWindow):
         elif video_num and download_type=='video':
             if not self.background_thread or not self.background_thread.isRunning():
                 # 백그라운드 스레드 생성 및 실행
-                self.background_thread = Video_BackgroundThread(video_num)
+                self.background_thread = Video_BackgroundThread(video_num, self.OAUTH, self.NID_SES, self.NID_AUT)
                 self.background_thread.finished.connect(self.background_thread_finished)
                 self.background_thread.status_updated.connect(self.update_status)  # QTextBrowser 텍스트 업데이트 연결
                 self.background_thread.start()
