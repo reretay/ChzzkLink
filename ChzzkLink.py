@@ -22,14 +22,6 @@ class WindowClass(QMainWindow, MainWindow):
         super().__init__()
         self.setupUi(self)
 
-        #NID
-        self.OAUTH = 'false'
-        self.NID_SES = 'null'
-        self.NID_AUT = 'null'
-
-        # ChzzkLink 내에서 인스턴스를 생성하고 NIDWindowClass에 전달
-        self.nid_window = NIDWindowClass(self)
-
         # QPushButton에 대한 이벤트 핸들러 연결
         self.pushButton_start.clicked.connect(self.start_recording)
         self.pushButton_stop.clicked.connect(self.stop_recording)
@@ -37,6 +29,11 @@ class WindowClass(QMainWindow, MainWindow):
         self.pushButton_nid.clicked.connect(self.show_nid_window)
 
         self.background_thread = None
+
+        # NID 초기값
+        self.OAUTH = 'false'
+        self.NID_SES = 0
+        self.NID_AUT = 0
 
     # 녹화 시작 함수
     def start_recording(self):
@@ -117,11 +114,12 @@ class WindowClass(QMainWindow, MainWindow):
     def show_nid_window(self):
         self.nid_window = NIDWindowClass()
         self.nid_window.show()
-
-    def handle_nid_data(self, oauth, ses, aut):
-        self.OAUTH = oauth
-        self.NID_SES = ses
-        self.NID_AUT = aut
+        self.nid_window.data_saved.connect(self.handle_nid_data)
+    
+    def handle_nid_data(self, OAUTH, NID_SES, NID_AUT): # NID 시그널 연결
+        self.NID_SES=NID_SES
+        self.NID_AUT=NID_AUT
+        self.OAUTH=OAUTH
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

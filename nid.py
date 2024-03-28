@@ -1,16 +1,20 @@
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5 import uic
 import sys
 
 NIDWindow = uic.loadUiType("NID.ui")[0]
 
 class NIDWindowClass(QWidget, NIDWindow):
+    # 시그널 정의
+    data_saved = pyqtSignal(str, str, str)
+
     def __init__(self):
         super().__init__()
         self.setupUi(self)
         self.show()
 
-        self.chzzklink_instance = chzzklink_instance
+        
 
         # QPushButton에 대한 이벤트 핸들러 연결
         self.pushButton_save.clicked.connect(self.nid_save)
@@ -21,9 +25,8 @@ class NIDWindowClass(QWidget, NIDWindow):
             NID_SES = self.lineEdit_NID_SES.text().strip()
             NID_AUT = self.lineEdit_NID_AUT.text().strip()
             OAUTH = "true"
-            # 직접적인 참조를 사용하여 값 전달
-            self.chzzklink_instance.handle_nid_data(OAUTH, NID_SES, NID_AUT)
-
+            # 시그널 발생
+            self.data_saved.emit(NID_SES, NID_AUT, OAUTH)
             QMessageBox.about(self,'Alert','Saved!')
         else:
             NID_SES = 'null'
