@@ -74,9 +74,9 @@ class Live_BackgroundThread(QThread):
             file_path = f"recordings/{file_name}"
             # NID 사용 여부에 따른 명령어 결정
             if self.OAUTH == "false":
-                record_command = (f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --ffmpeg-copyts --plugin-dirs "LivePlugin" --http-header "User-Agent={self.useragent}" https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"')
+                record_command = (f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --ffmpeg-copyts --plugin-dirs "streamlink-6.6.2-1-py312-x86_64" --http-header "User-Agent={self.useragent}" https://chzzk.naver.com/live/{self.channel_id} best --output "{file_path}"')
             else:
-                record_command = (f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --ffmpeg-copyts --plugin-dirs "LivePlugin" --http-header "User-Agent={self.useragent}" https://chzzk.naver.com/live/{self.channel_id} best --chzzk-cookies "NID_AUT={self.NID_AUT}; NID_SES={self.NID_SES};" -o "{file_path}"')
+                record_command = (f'streamlink-6.6.2-1-py312-x86_64/bin/streamlink --loglevel none --ffmpeg-copyts --plugin-dirs "streamlink-6.6.2-1-py312-x86_64" --http-header "User-Agent={self.useragent}" https://chzzk.naver.com/live/{self.channel_id} best --ChzzkPlugin-cookie "NID_AUT={self.NID_AUT}; NID_SES={self.NID_SES};" -o "{file_path}"')
             # 녹화 시작 전에 필요한 정보를 메인 창으로 전달
             self.status_updated.emit(f"NID 사용 여부: {self.OAUTH}\n")
             self.status_updated.emit(f"채널 ID: {self.channel_id}\n")
