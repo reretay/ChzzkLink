@@ -60,7 +60,12 @@ class Live_BackgroundThread(QThread):
 
     # 녹화 시작 함수
     def start_recording(self, api_url):
-        response = requests.get(api_url, headers=self.headers)
+        if self.OAUTH == 'true':
+            self.oauth_headers = self.headers
+            self.oauth_headers['Cookie'] = f"NID_AUT={self.NID_AUT}; NID_SES={self.NID_SES};"
+            response = requests.get(api_url, headers=self.oauth_headers)
+        else:
+            response = requests.get(api_url, headers=self.headers)
         if response.status_code == 200:
             content = response.json().get('content', {})
             title = content.get('liveTitle', 'untitled')
