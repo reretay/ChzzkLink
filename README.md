@@ -15,5 +15,5 @@ https://github.com/reretay/ChzzkLink/releases/tag/Alpha
 # To Do List
 <del>다시보기 다운로드 기능 추가</del> <br> 
 영상 길이 문제 수정 <br>
-StreamLink 플러그인 교체 <br>
-연령제한 방송 다운로드 목적 NID_AUT, NID_SES 입력란 추가 <br>
+StreamLink 플러그인 교체</del> <br>
+연령제한 방송 다운로드 목적 NID_AUT, NID_SES 입력란 추가</del> <br>
