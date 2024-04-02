@@ -1,6 +1,7 @@
 import sys
 import requests
 from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWidgets import QMessageBox
 import subprocess
 import time
 import os
@@ -37,8 +38,13 @@ class Live_BackgroundThread(QThread):
             if naver_status == 'OPEN':
                 if not self.recording_process and not self.is_recording_started:
                     self.start_recording(naver_api_url)
-                print("Status:OPEN")
-                self.status_updated.emit("녹화중...")  # 상태 업데이트 시그널 발생
+                    if self.recording_process:
+                        print("Status:OPEN")
+                        self.status_updated.emit("녹화 시작")  # 상태 업데이트 시그널 발생
+                    else:
+                        print("OPENED BUT SOMETHING WAS WRONG. Fail to start recording")
+                        self.stop_recording()
+                        self.stop()
             else:
                 if self.recording_process:
                     self.stop_recording()
@@ -60,14 +66,31 @@ class Live_BackgroundThread(QThread):
 
     # 녹화 시작 함수
     def start_recording(self, api_url):
-        if self.OAUTH == 'true':
+        continuedownload=0
+        if self.OAUTH == 'true': #OAUTH 사용 여부에 따른 request 헤더 설정 및 유저 상태와 방송상태 확인
             self.oauth_headers = self.headers
             self.oauth_headers['Cookie'] = f"NID_AUT={self.NID_AUT}; NID_SES={self.NID_SES};"
             response = requests.get(api_url, headers=self.oauth_headers)
+            content = response.json().get('content', {})
+            if content.get('adult') == True and content.get('userAdultStatus') == 'ADULT':
+                continuedownload=1
+            elif content.get('adult') == False:
+                continuedownload=1
+            else:
+                self.status_updated.emit("NID_Error")
+                continuedownload=0
         else:
             response = requests.get(api_url, headers=self.headers)
-        if response.status_code == 200:
             content = response.json().get('content', {})
+            if content.get('adult') == True and content.get('userAdultStatus') == 'ADULT':
+                continuedownload=1
+            elif content.get('adult') == False:
+                continuedownload=1
+            else:
+                self.status_updated.emit("NID_Error")
+                continuedownload=0
+        
+        if response.status_code == 200 and continuedownload == 1:
             title = content.get('liveTitle', 'untitled')
             channel_name = content.get('channel', {}).get('channelName', 'unknown_channel')
             open_date = content.get('openDate', 'unknown_date')
@@ -129,4 +152,3 @@ class Live_BackgroundThread(QThread):
             self.recording_process = None
             self.status_updated.emit("녹화중이 아닙니다.")  # 상태 업데이트 시그널 발생
             print("\nStop recording")
-

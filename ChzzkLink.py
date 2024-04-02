@@ -103,6 +103,8 @@ class WindowClass(QMainWindow, MainWindow):
             self.label_4.setScaledContents(True)  # 이미지 크기를 라벨 크기에 맞게 조정
             self.label_4.show()
             self.label_4.update()
+        elif status.startswith("NID_Error"):
+            QMessageBox.warning(None, "Failed to fetch User NID", "Please Check your NID.")
         else:
             self.textBrowser.append(status)  # textBrowser에 정보 추가
 
