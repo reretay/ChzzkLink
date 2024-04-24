@@ -4,8 +4,10 @@ streamlink-6.6.2-1-py312-x86_64 <br>
 With  NaverChzzk.py plugin <br>
 https://github.com/reretay/Chzzk_Tool_Auto_Record
 
-# Alpha Release
-https://github.com/reretay/ChzzkLink/releases/tag/Alpha
+# Beta Release
+![image](https://github.com/reretay/ChzzkLink/assets/31172353/c8d07210-cea1-406d-b2d5-a11d0884630c)
+
+[https://github.com/reretay/ChzzkLink/releases/tag/Alpha](https://github.com/reretay/ChzzkLink/releases/tag/Beta)
 
 # To Do List
 <del>다시보기 다운로드 기능 추가</del> <br> 
