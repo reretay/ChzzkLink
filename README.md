@@ -18,6 +18,7 @@ VOD같은 경우에는 바로 다운로드가 시작되고 라이브 같은 경�
 또한 영상은 recordings 폴더 밑에 저장됩니다.
 
 성인제한 방송은 NID_SES와 AUT 정보를 입력해야 합니다. << 웹 브라우저로 치지직에 로그인 된 상태에서 F12를 누르거나 빈곳을 우클릭하여 개발자창을 엽니다. 그리고 application(응용 프로그램) - 왼쪽 탭에서 저장소 아래 쿠키 확장 - chzzk.naver.com 선택 하셔서 보시면 NID_AUT 와 NID_SES가 있습니다. 각각 클릭하시면 밑에 Cookie Value에 전체 값이 뜹니다. 이걸 붙여넣기 해주시면 성인 제한 방송도 다운로드가 가능합니다.
+
 [https://github.com/reretay/ChzzkLink/releases/tag/Alpha](https://github.com/reretay/ChzzkLink/releases/tag/Beta)
 
 # To Do List
