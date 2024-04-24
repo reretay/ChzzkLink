@@ -1,4 +1,4 @@
-# ChzzkLink
+# ChzzkLink - Chzzk VOD/LIVE Downloader
 
 streamlink-6.6.2-1-py312-x86_64 <br>
 With  NaverChzzk.py plugin <br>
