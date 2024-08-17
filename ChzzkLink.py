@@ -28,12 +28,22 @@ class WindowClass(QMainWindow, MainWindow):
         self.pushButton_end.clicked.connect(self.end_program)
         self.pushButton_nid.clicked.connect(self.show_nid_window)
 
+        # QComboBox에 대한 이벤트 핸들러 연결
+        self.comboBox.currentIndexChanged.connect(self.on_combobox_changed)
+        self.comboBox_2.currentIndexChanged.connect(self.on_combobox_2_changed)
+        
         self.background_thread = None
 
         # NID 초기값
         self.OAUTH = 'false'
         self.NID_SES = 0
         self.NID_AUT = 0
+        
+        # 해상도 초기값
+        self.resolution = 1080
+        
+        # 파일 형식 초기값
+        self.format = 'ts'
 
     # 녹화 시작 함수
     def start_recording(self):
@@ -55,7 +65,7 @@ class WindowClass(QMainWindow, MainWindow):
         if channel_id and download_type=='live':
             if not self.background_thread or not self.background_thread.isRunning():
                 # 백그라운드 스레드 생성 및 실행
-                self.background_thread = Live_BackgroundThread(channel_id, self.OAUTH, self.NID_SES, self.NID_AUT)
+                self.background_thread = Live_BackgroundThread(channel_id, self.OAUTH, self.NID_SES, self.NID_AUT, self.resolution, self.format)
                 self.background_thread.finished.connect(self.background_thread_finished)
                 self.background_thread.status_updated.connect(self.update_status)  # QTextBrowser 텍스트 업데이트 연결
                 self.background_thread.start()
@@ -64,7 +74,7 @@ class WindowClass(QMainWindow, MainWindow):
         elif video_num and download_type=='video':
             if not self.background_thread or not self.background_thread.isRunning():
                 # 백그라운드 스레드 생성 및 실행
-                self.background_thread = Video_BackgroundThread(video_num, self.OAUTH, self.NID_SES, self.NID_AUT)
+                self.background_thread = Video_BackgroundThread(video_num, self.OAUTH, self.NID_SES, self.NID_AUT, self.resolution, self.format)
                 self.background_thread.finished.connect(self.background_thread_finished)
                 self.background_thread.status_updated.connect(self.update_status)  # QTextBrowser 텍스트 업데이트 연결
                 self.background_thread.start()
@@ -112,6 +122,27 @@ class WindowClass(QMainWindow, MainWindow):
     def background_thread_finished(self):
         print("Background thread finished")
 
+    # 해상도 변경 이벤트 함수
+    def on_combobox_changed(self):
+        # 선택된 항목을 가져옵니다
+        selected_resolution = self.comboBox.currentText()
+        
+        # 선택된 해상도에 따른 처리
+        if selected_resolution == "1080p":
+            self.resolution = 1080
+        elif selected_resolution == "720p":
+            self.resolution = 720
+        elif selected_resolution == "480p":
+            self.resolution = 480
+    
+    # 파일 형식 변경 이벤트 함수
+    def on_combobox_2_changed(self):
+        selected_format = self.comboBox_2.currentText()
+        if selected_format == "ts":
+            self.format = 'ts'
+        elif selected_format == "mp4":
+            self.format = 'mp4'
+    
     # nid 창 표시 함수 추가
     def show_nid_window(self):
         self.nid_window = NIDWindowClass()
